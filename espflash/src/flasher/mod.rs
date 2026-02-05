@@ -57,9 +57,6 @@ pub(crate) const TRY_SPI_PARAMS: [SpiAttachParams; 2] =
 pub(crate) const FLASH_SECTOR_SIZE: usize = 0x1000;
 pub(crate) const FLASH_WRITE_SIZE: usize = 0x400;
 
-#[cfg(feature = "serialport")]
-pub(crate) const BOOTLOADER_PROTECTION_ADDR: u32 = 0x8000;
-
 /// Supported flash frequencies
 ///
 /// Note that not all frequencies are supported by each target device.
@@ -940,15 +937,7 @@ impl Flasher {
     }
 
     /// Validate flash arguments when in secure download mode.
-    /// Prevent a user from accidentally flashing over a secure boot enabled
-    /// bootloader and bricking their device.
-    fn validate_secure_download_args(&self, segments: &[Segment<'_>]) -> Result<(), Error> {
-        for segment in segments {
-            if segment.addr < BOOTLOADER_PROTECTION_ADDR {
-                return Err(Error::SecureDownloadBootloaderProtection);
-            }
-        }
-
+    fn validate_secure_download_args(&self, _segments: &[Segment<'_>]) -> Result<(), Error> {
         if self.verify || self.skip {
             warn!(
                 "Secure Download Mode enabled: --verify and --skip options are not available \
